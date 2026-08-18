@@ -2,8 +2,14 @@ import React, { useState, useRef } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamlist } from '../../navigation/type';
 
-export default function OtpScreen() {
+type Props = NativeStackScreenProps<AuthStackParamlist, 'otp'>;
+
+export default function OtpScreen({ route }: Props) {
+  const { email } = route.params;
+
   const { theme } = useTheme();
   const [otp, setOtp] = useState(['', '', '', '']);
   const inputs = useRef<Array<React.ComponentRef<typeof TextInput> | null>>([]);

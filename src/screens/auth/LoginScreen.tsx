@@ -3,8 +3,12 @@ import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Eye, EyeOff, Brain } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { AuthStackParamlist } from '../../navigation/type';
 
-export default function LoginScreen() {
+type Props = NativeStackScreenProps<AuthStackParamlist, 'Login'>;
+
+export default function LoginScreen({ navigation }: Props) {
   const { theme, isDark, setPreference } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -95,7 +99,10 @@ export default function LoginScreen() {
           </Text>
         </Pressable>
 
-        <Text style={[styles.footer, { color: theme.textSecondary }]}>
+        <Text
+          onPress={() => navigation.navigate('Register')}
+          style={[styles.footer, { color: theme.textSecondary }]}
+        >
           New here? <Text style={{ color: theme.primary }}>Create account</Text>
         </Text>
 

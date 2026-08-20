@@ -1,8 +1,12 @@
 import axios from 'axios';
+import { Platform } from 'react-native';
 import { secureStorage } from '../lib/secureStorage';
 
+const BASE_URL =
+  Platform.OS === 'android' ? 'http://10.0.2.2:8000' : 'http://localhost:8000';
+
 const api = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -35,7 +39,7 @@ api.interceptors.response.use(
         }
 
         const response = await axios.post(
-          'http://localhost:8000/api/v1/auth/refresh-access-token',
+          `${BASE_URL}/api/v1/auth/refresh-access-token`,
           { refreshToken },
         );
 

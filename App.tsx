@@ -5,8 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import AuthNavigator from './src/navigation/AuthNavigator';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { ActivityIndicator, View } from 'react-native';
-import HomeScreen from './src/screens/home/HomeScreen';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
+import MainNavigator from './src/navigation/MainNavigator';
 
 function RootNavigator() {
   const { user, isLoading } = useAuth();
@@ -19,7 +19,7 @@ function RootNavigator() {
     );
   }
 
-  return user ? <HomeScreen /> : <AuthNavigator />;
+  return user ? <MainNavigator /> : <AuthNavigator />;
 }
 
 GoogleSignin.configure({

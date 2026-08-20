@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
@@ -7,28 +7,21 @@ import { useAuth } from '../../context/AuthContext';
 export default function HomeScreen() {
   const { theme } = useTheme();
   const { user, logout } = useAuth();
-
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <View style={styles.container}>
         <Text style={[styles.title, { color: theme.textPrimary }]}>
-          Welcome, {user?.name}!
+          Hi, {user?.name?.split(' ')[0]} 👋
         </Text>
-        <Text style={[styles.subtitle, { color: theme.textSecondary }]}>
-          You're logged in. 🎉
+        <Text style={[styles.sub, { color: theme.textSecondary }]}>
+          Home dashboard coming soon
         </Text>
-
         <Pressable
-          onPress={logout}
-          style={({ pressed }) => [
-            styles.button,
-            { backgroundColor: theme.primary },
-            pressed && { opacity: 0.85 },
-          ]}
+          onPress={() => {
+            logout();
+          }}
         >
-          <Text style={[styles.buttonText, { color: theme.white }]}>
-            Log out
-          </Text>
+          <Text>LOGOUT</Text>
         </Pressable>
       </View>
     </SafeAreaView>
@@ -44,12 +37,5 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   title: { fontSize: 24, fontWeight: '600' },
-  subtitle: { fontSize: 14, marginTop: 8, marginBottom: 32 },
-  button: {
-    borderRadius: 24,
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    alignItems: 'center',
-  },
-  buttonText: { fontSize: 14, fontWeight: '500' },
+  sub: { fontSize: 14, marginTop: 8 },
 });

@@ -48,7 +48,7 @@ export const verifyForgotOtpService = async (email: string, otp: string) => {
     email,
     otp,
   });
-  return response.data; // { message, resetToken }
+  return response.data;
 };
 
 export const resetPasswordService = async (

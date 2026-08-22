@@ -1,11 +1,11 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useTheme } from '../context/ThemeContext';
 import HomeScreen from '../screens/main/HomeScreen';
-import LibraryScreen from '../screens/main/LibraryScreen';
 import PlannerScreen from '../screens/main/PlannerScreen';
 import AnalyticsScreen from '../screens/main/AnalyticsScreen';
 import ProfileScreen from '../screens/main/ProfileScreen';
 import { Home, Library, Calendar, BarChart3, User } from 'lucide-react-native';
+import LibraryStack from './LibraryStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,7 +34,7 @@ export default function MainNavigator() {
 
       <Tab.Screen
         name="Library"
-        component={LibraryScreen}
+        component={LibraryStack}
         options={{
           tabBarIcon: ({ color, size }) => (
             <Library color={color} size={size} />

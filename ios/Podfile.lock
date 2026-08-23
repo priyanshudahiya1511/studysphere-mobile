@@ -1301,7 +1301,51 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
+  - react-native-blob-util (0.24.10):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - react-native-document-picker (12.0.2):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-bridging
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - react-native-pdf (7.0.5):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1943,7 +1987,9 @@ DEPENDENCIES:
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - React-mutationobservernativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver`)
+  - react-native-blob-util (from `../node_modules/react-native-blob-util`)
   - "react-native-document-picker (from `../node_modules/@react-native-documents/picker`)"
+  - react-native-pdf (from `../node_modules/react-native-pdf`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-networking (from `../node_modules/react-native/ReactCommon/react/networking`)
@@ -2098,8 +2144,12 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
   React-mutationobservernativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/mutationobserver"
+  react-native-blob-util:
+    :path: "../node_modules/react-native-blob-util"
   react-native-document-picker:
     :path: "../node_modules/@react-native-documents/picker"
+  react-native-pdf:
+    :path: "../node_modules/react-native-pdf"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
@@ -2244,7 +2294,9 @@ SPEC CHECKSUMS:
   React-Mapbuffer: acf4ac61f163f15ced7dfad7308957816b2d7abd
   React-microtasksnativemodule: 512d9f7c6b66574d90832a6b10b6102d4a8fdf30
   React-mutationobservernativemodule: 2c5abeb9a4ae316ba6d9420ef8d9baa81faa9d56
+  react-native-blob-util: 0bc55ea9649e01a4d3369f0bf675600ace81f1d7
   react-native-document-picker: 8f8e56f5a6338ba036fd331d53411ded25f91c5d
+  react-native-pdf: 4030c8482d0ef0bcf7c4b2f947442b25d04c149c
   react-native-safe-area-context: 3a6b38edff2a811fc1e27f5ff81249b24ea7e607
   React-NativeModulesApple: 22b2f3e1538ceb1aab1ab182ccb0666ea2ec36ad
   React-networking: b58b3098d4a626f88bbaeaf6bf5e67b18ff39089

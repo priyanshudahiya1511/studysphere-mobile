@@ -8,7 +8,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { FileText, Plus } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import {
@@ -17,8 +17,12 @@ import {
 } from '../../services/document.services';
 import { Document } from '../../types/document.types';
 import { pick, types } from '@react-native-documents/picker';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { LibraryStackParamList } from '../../navigation/LibraryStack';
 
 export default function LibraryScreen() {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<LibraryStackParamList>>();
   const { theme } = useTheme();
 
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -33,7 +37,7 @@ export default function LibraryScreen() {
       setError('');
       const data = await getDocumentsService();
       setDocuments(data.documents);
-    } catch (err) {
+    } catch {
       setError('Could not load documents');
     } finally {
       setLoading(false);
@@ -90,6 +94,12 @@ export default function LibraryScreen() {
 
   const renderItem = ({ item }: { item: Document }) => (
     <Pressable
+      onPress={() => {
+        navigation.navigate('DocumentDetail', {
+          documentId: item._id,
+          title: item.title,
+        });
+      }}
       style={({ pressed }) => [
         styles.card,
         { backgroundColor: theme.card },

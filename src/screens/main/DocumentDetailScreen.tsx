@@ -68,6 +68,12 @@ export default function DocumentDetailScreen({ navigation, route }: Props) {
     }
   };
 
+  const handleAction = (label: string) => {
+    if (label === 'Summarize') {
+      navigation.navigate('Summary', { documentId, title });
+    }
+  };
+
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -131,6 +137,7 @@ export default function DocumentDetailScreen({ navigation, route }: Props) {
               const Icon = action.icon;
               return (
                 <Pressable
+                  onPress={() => handleAction(action.label)}
                   key={i}
                   style={({ pressed }) => [
                     styles.actionCard,

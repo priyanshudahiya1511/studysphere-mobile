@@ -70,9 +70,11 @@ export default function DocumentDetailScreen({ navigation, route }: Props) {
 
   const handleAction = (label: string) => {
     if (label === 'Summarize') {
-      navigation.navigate('Summary', { documentId, title });
+      navigation.navigate('Summary', { documentId });
     } else if (label === 'Quiz me') {
-      navigation.navigate('Quiz', { documentId, title });
+      navigation.navigate('Quiz', { documentId });
+    } else if (label === 'Flashcards') {
+      navigation.navigate('Flashcards', { documentId });
     }
   };
 

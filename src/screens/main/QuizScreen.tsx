@@ -36,7 +36,6 @@ export default function QuizScreen({ navigation, route }: Props) {
       setLoading(true);
       const data = await createQuizService('document', documentId, 5);
       setQuiz(data.quiz);
-      // initialize answers array with -1 (unanswered) for each question
       setAnswers(new Array(data.quiz.questions.length).fill(-1));
     } catch (err: any) {
       setError(err.response?.data?.message || 'Could not generate quiz');

@@ -75,6 +75,8 @@ export default function DocumentDetailScreen({ navigation, route }: Props) {
       navigation.navigate('Quiz', { documentId });
     } else if (label === 'Flashcards') {
       navigation.navigate('Flashcards', { documentId });
+    } else if (label === 'Ask AI') {
+      navigation.navigate('Chat', { documentId });
     }
   };
 

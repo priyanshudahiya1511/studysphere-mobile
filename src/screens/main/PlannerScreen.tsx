@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect } from '@react-navigation/native';
-import { Plus, Check, Circle, Trash2 } from 'lucide-react-native';
+import { Plus, Check, Circle, Trash2, Calendar } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import {
   getTasksService,
@@ -21,15 +21,22 @@ import {
   deleteTaskService,
 } from '../../services/planner.services';
 import { Task } from '../../types/planner.types';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 export default function PlannerScreen() {
   const { theme } = useTheme();
 
+  const [dueDate, setDueDate] = useState<Date | null>(null);
+  const [showPicker, setShowPicker] = useState(false);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [newTitle, setNewTitle] = useState('');
   const [adding, setAdding] = useState(false);
+
+  const currDate = new Date();
+  currDate.setHours(0, 0, 0, 0);
 
   const fetchTasks = useCallback(async () => {
     try {
@@ -49,14 +56,28 @@ export default function PlannerScreen() {
     }, [fetchTasks]),
   );
 
+  const handleConfirmDate = (date: Date) => {
+    setShowPicker(false);
+    setDueDate(date);
+  };
+
+  const handleCancelDate = () => {
+    setShowPicker(false);
+  };
+
   const handleAdd = async () => {
     const title = newTitle.trim();
     if (!title || adding) return;
     setAdding(true);
     try {
-      const data = await createTaskService(title);
+      const data = await createTaskService(
+        title,
+        undefined,
+        dueDate ? dueDate.toISOString() : null,
+      );
       setTasks(prev => [data.task, ...prev]);
       setNewTitle('');
+      setDueDate(null);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Could not add task');
     } finally {
@@ -125,54 +146,64 @@ export default function PlannerScreen() {
     return { text: `Due ${label}`, color: theme.textSecondary, accent: null };
   };
 
+  const renderRightActions = (id: string) => (
+    <Pressable
+      onPress={() => handleDelete(id)}
+      style={[styles.deleteAction, { backgroundColor: theme.error }]}
+    >
+      <Trash2 size={22} color={theme.white} />
+    </Pressable>
+  );
+
   const renderTask = ({ item }: { item: Task }) => {
     const done = item.status === 'completed';
     const dueInfo = !done ? getDueInfo(item.dueDate) : null;
     return (
-      <View
-        style={[
-          styles.taskCard,
-          { backgroundColor: theme.card, opacity: done ? 0.7 : 1 },
-          dueInfo?.accent
-            ? { borderLeftWidth: 3, borderLeftColor: dueInfo.accent }
-            : null,
-        ]}
+      <ReanimatedSwipeable
+        renderRightActions={() => renderRightActions(item._id)}
+        overshootRight={false}
       >
-        <Pressable onPress={() => handleToggle(item)} hitSlop={8}>
-          {done ? (
-            <View
-              style={[styles.checkCircle, { backgroundColor: theme.primary }]}
+        <View
+          style={[
+            styles.taskCard,
+            { backgroundColor: theme.card, opacity: done ? 0.7 : 1 },
+            dueInfo?.accent
+              ? { borderLeftWidth: 3, borderLeftColor: dueInfo.accent }
+              : null,
+          ]}
+        >
+          <Pressable onPress={() => handleToggle(item)} hitSlop={8}>
+            {done ? (
+              <View
+                style={[styles.checkCircle, { backgroundColor: theme.primary }]}
+              >
+                <Check size={14} color={theme.white} />
+              </View>
+            ) : (
+              <Circle size={22} color={theme.textMuted} />
+            )}
+          </Pressable>
+
+          <View style={styles.taskContent}>
+            <Text
+              style={[
+                styles.taskTitle,
+                {
+                  color: done ? theme.textMuted : theme.textPrimary,
+                  textDecorationLine: done ? 'line-through' : 'none',
+                },
+              ]}
             >
-              <Check size={14} color={theme.white} />
-            </View>
-          ) : (
-            <Circle size={22} color={theme.textMuted} />
-          )}
-        </Pressable>
-
-        <View style={styles.taskContent}>
-          <Text
-            style={[
-              styles.taskTitle,
-              {
-                color: done ? theme.textMuted : theme.textPrimary,
-                textDecorationLine: done ? 'line-through' : 'none',
-              },
-            ]}
-          >
-            {item.title}
-          </Text>
-          {dueInfo ? (
-            <Text style={[styles.taskDate, { color: dueInfo.color }]}>
-              {dueInfo.text}
+              {item.title}
             </Text>
-          ) : null}
+            {dueInfo ? (
+              <Text style={[styles.taskDate, { color: dueInfo.color }]}>
+                {dueInfo.text}
+              </Text>
+            ) : null}
+          </View>
         </View>
-
-        <Pressable onPress={() => handleDelete(item._id)} hitSlop={8}>
-          <Trash2 size={18} color={theme.textMuted} />
-        </Pressable>
-      </View>
+      </ReanimatedSwipeable>
     );
   };
 
@@ -239,17 +270,42 @@ export default function PlannerScreen() {
         )}
 
         <View style={[styles.addBar, { borderTopColor: theme.border }]}>
-          <TextInput
-            style={[
-              styles.addInput,
-              { backgroundColor: theme.card, color: theme.textPrimary },
-            ]}
-            value={newTitle}
-            onChangeText={setNewTitle}
-            placeholder="Add a task..."
-            placeholderTextColor={theme.textMuted}
-            onSubmitEditing={handleAdd}
-          />
+          <Pressable
+            onPress={() => setShowPicker(true)}
+            style={[styles.calendarButton, { backgroundColor: theme.card }]}
+          >
+            <Calendar
+              size={20}
+              color={dueDate ? theme.primary : theme.textMuted}
+            />
+          </Pressable>
+
+          <View style={styles.inputWrapper}>
+            <TextInput
+              style={[
+                styles.addInput,
+                { backgroundColor: theme.card, color: theme.textPrimary },
+              ]}
+              value={newTitle}
+              onChangeText={setNewTitle}
+              placeholder="Add a task..."
+              placeholderTextColor={theme.textMuted}
+              onSubmitEditing={handleAdd}
+            />
+            {dueDate ? (
+              <Text
+                onPress={() => setDueDate(null)}
+                style={[styles.selectedDate, { color: theme.primary }]}
+              >
+                Due{' '}
+                {dueDate.toLocaleDateString(undefined, {
+                  month: 'short',
+                  day: 'numeric',
+                })}
+              </Text>
+            ) : null}
+          </View>
+
           <Pressable
             onPress={handleAdd}
             disabled={!newTitle.trim() || adding}
@@ -263,6 +319,17 @@ export default function PlannerScreen() {
             <Plus size={22} color={theme.white} />
           </Pressable>
         </View>
+
+        {showPicker && (
+          <DateTimePickerModal
+            isVisible={showPicker}
+            mode="date"
+            date={dueDate || new Date()}
+            minimumDate={currDate}
+            onConfirm={handleConfirmDate}
+            onCancel={handleCancelDate}
+          />
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -340,5 +407,31 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  deleteAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 72,
+    borderRadius: 12,
+    marginBottom: 10,
+    marginLeft: 8,
+  },
+  calendarButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+  },
+  selectedDate: {
+    fontSize: 11,
+    marginTop: 14,
+    marginLeft: 8,
+    fontWeight: '500',
   },
 });

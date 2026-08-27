@@ -18,11 +18,10 @@ import {
   Layers,
   HelpCircle,
   CheckSquare,
-  MessageCircle,
   Upload,
 } from 'lucide-react-native';
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }: any) {
   const { theme } = useTheme();
   const { user } = useAuth();
 
@@ -142,6 +141,12 @@ export default function HomeScreen() {
         </Text>
         <View style={styles.actions}>
           <Pressable
+            onPress={() => {
+              navigation.navigate('Library', {
+                screen: 'LibraryList',
+                params: { openPicker: true },
+              });
+            }}
             style={({ pressed }) => [
               styles.actionPrimary,
               { backgroundColor: theme.primary },
@@ -151,21 +156,6 @@ export default function HomeScreen() {
             <Upload size={20} color={theme.white} />
             <Text style={[styles.actionPrimaryText, { color: theme.white }]}>
               Upload a document
-            </Text>
-          </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [
-              styles.actionSecondary,
-              { backgroundColor: theme.card },
-              pressed && { opacity: 0.85 },
-            ]}
-          >
-            <MessageCircle size={20} color={theme.primary} />
-            <Text
-              style={[styles.actionSecondaryText, { color: theme.textPrimary }]}
-            >
-              Ask AI a question
             </Text>
           </Pressable>
         </View>

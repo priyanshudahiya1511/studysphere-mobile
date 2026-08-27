@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,7 +8,11 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import {
+  useFocusEffect,
+  useNavigation,
+  useRoute,
+} from '@react-navigation/native';
 import { FileText, Plus } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import {
@@ -23,6 +27,8 @@ import { LibraryStackParamList } from '../../navigation/LibraryStack';
 export default function LibraryScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<LibraryStackParamList>>();
+  const route = useRoute<any>();
+
   const { theme } = useTheme();
 
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -56,12 +62,11 @@ export default function LibraryScreen() {
     fetchDocuments();
   };
 
-  const handleUpload = async () => {
+  const handleUpload = useCallback(async () => {
     try {
       const [file] = await pick({
         type: [types.pdf, types.docx, types.plainText],
       });
-
       setUploading(true);
       await uploadDocumentService({
         uri: file.uri,
@@ -75,7 +80,12 @@ export default function LibraryScreen() {
     } finally {
       setUploading(false);
     }
-  };
+  }, [fetchDocuments]);
+
+  useEffect(() => {
+    handleUpload();
+    navigation.setParams({ openPicker: false });
+  }, [route.params?.openPicker]);
 
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;

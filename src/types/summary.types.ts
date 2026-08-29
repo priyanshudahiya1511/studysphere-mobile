@@ -20,3 +20,8 @@ export interface GenerateSummaryResponse {
   message: string;
   summary: Summary;
 }
+
+export interface GetSummariesResponse {
+  count: number;
+  summaries: Summary[];
+}

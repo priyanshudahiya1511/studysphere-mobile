@@ -83,8 +83,10 @@ export default function LibraryScreen() {
   }, [fetchDocuments]);
 
   useEffect(() => {
-    handleUpload();
-    navigation.setParams({ openPicker: false });
+    if (route.params?.openPicker) {
+      handleUpload();
+      navigation.setParams({ openPicker: false });
+    }
   }, [route.params?.openPicker]);
 
   const formatSize = (bytes: number) => {

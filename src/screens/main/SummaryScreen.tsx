@@ -6,12 +6,16 @@ import {
   ScrollView,
   Pressable,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, Sparkles } from 'lucide-react-native';
+import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../../context/ThemeContext';
-import { generateSummaryService } from '../../services/summary.services';
+import {
+  deleteSummaryService,
+  generateSummaryService,
+} from '../../services/summary.services';
 import { Summary } from '../../types/summary.types';
 import { LibraryStackParamList } from '../../navigation/LibraryStack';
 
@@ -24,6 +28,8 @@ export default function SummaryScreen({ navigation, route }: Props) {
   const [summary, setSummary] = useState<Summary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [deleting, setDeleting] = useState(false);
 
   const fetchSummary = useCallback(async () => {
     try {
@@ -42,6 +48,33 @@ export default function SummaryScreen({ navigation, route }: Props) {
     fetchSummary();
   }, [fetchSummary]);
 
+  const handleDelete = () => {
+    if (!summary) return;
+    Alert.alert(
+      'Delete summary?',
+      'This will permanently remove this summary. You can generate a new one anytime. ',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await deleteSummaryService(summary._id);
+              navigation.goBack();
+            } catch (err: any) {
+              setError(
+                err.response?.data?.message || 'Could not delete summary',
+              );
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -51,7 +84,13 @@ export default function SummaryScreen({ navigation, route }: Props) {
         <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>
           Summary
         </Text>
-        <View style={{ width: 24 }} />
+        {summary ? (
+          <Pressable onPress={handleDelete} hitSlop={8} disabled={deleting}>
+            <Trash2 size={20} color={theme.error} />
+          </Pressable>
+        ) : (
+          <View style={{ width: 20 }} />
+        )}
       </View>
 
       {loading ? (

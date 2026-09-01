@@ -37,3 +37,8 @@ export interface SubmitQuizResponse {
   percentage: number;
   results: QuizResultItem[];
 }
+
+export interface GetQuizzesResponse {
+  count: number;
+  quizzes: Quiz[];
+}

@@ -9,20 +9,21 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'lucide-react-native';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../../context/ThemeContext';
 import {
   createQuizService,
+  getQuizByIdService,
   submitQuizService,
 } from '../../services/quiz.services';
 import { Quiz } from '../../types/quiz.types';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { LibraryStackParamList } from '../../navigation/LibraryStack';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'Quiz'>;
 
-export default function QuizScreen({ navigation, route }: Props) {
+export default function QuizScreen({ route, navigation }: Props) {
   const { theme } = useTheme();
-  const { documentId } = route.params;
+  const { documentId, quizId } = route.params;
 
   const [quiz, setQuiz] = useState<Quiz | null>(null);
   const [answers, setAnswers] = useState<number[]>([]);
@@ -30,23 +31,32 @@ export default function QuizScreen({ navigation, route }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const generateQuiz = useCallback(async () => {
+  const loadQuiz = useCallback(async () => {
     try {
       setError('');
       setLoading(true);
-      const data = await createQuizService('document', documentId, 5);
-      setQuiz(data.quiz);
-      setAnswers(new Array(data.quiz.questions.length).fill(-1));
+      let loadedQuiz;
+      if (quizId) {
+        const data = await getQuizByIdService(quizId);
+        loadedQuiz = data.quiz;
+      } else if (documentId) {
+        const data = await createQuizService('document', documentId, 5);
+        loadedQuiz = data.quiz;
+      }
+      if (loadedQuiz) {
+        setQuiz(loadedQuiz);
+        setAnswers(new Array(loadedQuiz.questions.length).fill(-1));
+      }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Could not generate quiz');
+      setError(err.response?.data?.message || 'Could not load quiz');
     } finally {
       setLoading(false);
     }
-  }, [documentId]);
+  }, [documentId, quizId]);
 
   useEffect(() => {
-    generateQuiz();
-  }, [generateQuiz]);
+    loadQuiz();
+  }, [loadQuiz]);
 
   const selectAnswer = (questionIndex: number, optionIndex: number) => {
     setAnswers(prev => {
@@ -103,7 +113,7 @@ export default function QuizScreen({ navigation, route }: Props) {
           <Text style={[styles.errorText, { color: theme.error }]}>
             {error}
           </Text>
-          <Pressable onPress={generateQuiz}>
+          <Pressable onPress={loadQuiz}>
             <Text style={[styles.retry, { color: theme.primary }]}>
               Tap to retry
             </Text>

@@ -19,3 +19,8 @@ export interface GenerateFlashcardResponse {
   message: string;
   flashcardSet: FlashcardSet;
 }
+
+export interface GetFlashcardSetsResponse {
+  count: number;
+  flashcardSets: FlashcardSet[];
+}

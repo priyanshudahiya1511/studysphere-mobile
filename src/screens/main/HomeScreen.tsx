@@ -16,7 +16,6 @@ import {
   Sparkles,
   HelpCircle,
   Layers,
-  MessageCircle,
   Upload,
   ChevronRight,
 } from 'lucide-react-native';
@@ -77,13 +76,13 @@ export default function HomeScreen() {
       icon: HelpCircle,
       label: 'Quizzes',
       value: analytics?.content.quizzes ?? 0,
-      onPress: () => {},
+      onPress: () => navigation.navigate('SavedQuizzes'),
     },
     {
       icon: Layers,
       label: 'Flashcards',
       value: analytics?.content.flashcardSets ?? 0,
-      onPress: () => {},
+      onPress: () => navigation.navigate('SavedFlashcards'),
     },
   ];
 
@@ -144,23 +143,6 @@ export default function HomeScreen() {
                 );
               })}
             </View>
-
-            <Pressable
-              onPress={() => {}}
-              style={({ pressed }) => [
-                styles.chatRow,
-                { backgroundColor: theme.card },
-                pressed && { opacity: 0.7 },
-              ]}
-            >
-              <View style={styles.chatLeft}>
-                <MessageCircle size={20} color={theme.primary} />
-                <Text style={[styles.chatLabel, { color: theme.textPrimary }]}>
-                  Chat sessions
-                </Text>
-              </View>
-              <ChevronRight size={16} color={theme.textMuted} />
-            </Pressable>
           </>
         )}
 

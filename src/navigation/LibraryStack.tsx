@@ -14,7 +14,7 @@ export type LibraryStackParamList = {
   DocumentDetail: { documentId: string; title: string };
   PdfViewer: { fileUrl: string; title: string };
   Summary: { documentId: string };
-  Quiz: { documentId: string };
+  Quiz: { documentId?: string; quizId?: string };
   QuizResults: {
     score: number;
     total: number;

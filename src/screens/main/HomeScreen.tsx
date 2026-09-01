@@ -1,84 +1,91 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
-import { Analytics } from '../../types/analytics.types';
-import { getAnalyticsService } from '../../services/analytics.services';
+import React, { useState, useCallback } from 'react';
 import {
-  ActivityIndicator,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  StyleSheet,
-  Text,
   View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Pressable,
+  ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   FileText,
-  Layers,
+  Sparkles,
   HelpCircle,
-  CheckSquare,
+  Layers,
+  MessageCircle,
   Upload,
+  ChevronRight,
 } from 'lucide-react-native';
+import { useTheme } from '../../context/ThemeContext';
+import { useAuth } from '../../context/AuthContext';
+import { getAnalyticsService } from '../../services/analytics.services';
+import { Analytics } from '../../types/analytics.types';
+import { HomeStackParamList } from '../../navigation/HomeStack';
 
-export default function HomeScreen({ navigation }: any) {
+export default function HomeScreen() {
   const { theme } = useTheme();
   const { user } = useAuth();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
 
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
 
-  const fetchAnalysis = useCallback(async () => {
+  const fetchAnalytics = useCallback(async () => {
     try {
-      setError('');
       const data = await getAnalyticsService();
       setAnalytics(data);
-    } catch (err) {
-      setError('Could not load your stats');
-      console.log(err);
+    } catch {
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchAnalysis();
-  }, [fetchAnalysis]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchAnalytics();
+    }, [fetchAnalytics]),
+  );
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchAnalysis();
+    fetchAnalytics();
   };
 
   const firstName = user?.name?.split(' ')[0] ?? 'there';
 
-  const stats = analytics
-    ? [
-        {
-          icon: FileText,
-          value: analytics.content.documents,
-          label: 'Documents',
-        },
-        {
-          icon: Layers,
-          value: analytics.content.flashcardSets,
-          label: 'Flashcard sets',
-        },
-        {
-          icon: HelpCircle,
-          value: `${analytics.quizPerformance.averageScore}%`,
-          label: 'Avg quiz score',
-        },
-        {
-          icon: CheckSquare,
-          value: analytics.planner.pending,
-          label: 'Tasks pending',
-        },
-      ]
-    : [];
+  const contentCards = [
+    {
+      icon: FileText,
+      label: 'Documents',
+      value: analytics?.content.documents ?? 0,
+      onPress: () => navigation.getParent()?.navigate('Library'),
+    },
+    {
+      icon: Sparkles,
+      label: 'Summaries',
+      value: analytics?.content.summaries ?? 0,
+      onPress: () => navigation.navigate('SavedSummaries'),
+    },
+    {
+      icon: HelpCircle,
+      label: 'Quizzes',
+      value: analytics?.content.quizzes ?? 0,
+      onPress: () => {},
+    },
+    {
+      icon: Layers,
+      label: 'Flashcards',
+      value: analytics?.content.flashcardSets ?? 0,
+      onPress: () => {},
+    },
+  ];
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
@@ -96,69 +103,88 @@ export default function HomeScreen({ navigation }: any) {
             Ready to study?
           </Text>
         </View>
+
         {loading ? (
           <View style={styles.centerBox}>
             <ActivityIndicator color={theme.primary} />
           </View>
-        ) : error ? (
-          <View style={styles.centerBox}>
-            <Text style={[styles.errorText, { color: theme.error }]}>
-              {error}
-            </Text>
-            <Pressable onPress={fetchAnalysis}>
-              <Text style={[styles.retry, { color: theme.primary }]}>
-                Tap to retry
-              </Text>
-            </Pressable>
-          </View>
         ) : (
-          <View style={styles.statsGrid}>
-            {stats.map((stat, i) => {
-              const Icon = stat.icon;
-              return (
-                <View
-                  key={i}
-                  style={[styles.statCard, { backgroundColor: theme.card }]}
-                >
-                  <Icon size={20} color={theme.primary} />
-                  <Text
-                    style={[styles.statValue, { color: theme.textPrimary }]}
-                  >
-                    {stat.value}
-                  </Text>
-                  <Text
-                    style={[styles.statLabel, { color: theme.textSecondary }]}
-                  >
-                    {stat.label}
-                  </Text>
-                </View>
-              );
-            })}
-          </View>
-        )}
-        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>
-          Ouick actions
-        </Text>
-        <View style={styles.actions}>
-          <Pressable
-            onPress={() => {
-              navigation.navigate('Library', {
-                screen: 'LibraryList',
-                params: { openPicker: true },
-              });
-            }}
-            style={({ pressed }) => [
-              styles.actionPrimary,
-              { backgroundColor: theme.primary },
-              pressed && { opacity: 0.85 },
-            ]}
-          >
-            <Upload size={20} color={theme.white} />
-            <Text style={[styles.actionPrimaryText, { color: theme.white }]}>
-              Upload a document
+          <>
+            <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>
+              Your content
             </Text>
-          </Pressable>
-        </View>
+            <View style={styles.grid}>
+              {contentCards.map((card, i) => {
+                const Icon = card.icon;
+                return (
+                  <Pressable
+                    key={i}
+                    onPress={card.onPress}
+                    style={({ pressed }) => [
+                      styles.card,
+                      { backgroundColor: theme.card },
+                      pressed && { opacity: 0.7 },
+                    ]}
+                  >
+                    <View style={styles.cardTop}>
+                      <Icon size={20} color={theme.primary} />
+                      <ChevronRight size={16} color={theme.textMuted} />
+                    </View>
+                    <Text
+                      style={[styles.cardValue, { color: theme.textPrimary }]}
+                    >
+                      {card.value}
+                    </Text>
+                    <Text
+                      style={[styles.cardLabel, { color: theme.textSecondary }]}
+                    >
+                      {card.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
+            <Pressable
+              onPress={() => {}}
+              style={({ pressed }) => [
+                styles.chatRow,
+                { backgroundColor: theme.card },
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              <View style={styles.chatLeft}>
+                <MessageCircle size={20} color={theme.primary} />
+                <Text style={[styles.chatLabel, { color: theme.textPrimary }]}>
+                  Chat sessions
+                </Text>
+              </View>
+              <ChevronRight size={16} color={theme.textMuted} />
+            </Pressable>
+          </>
+        )}
+
+        <Text style={[styles.sectionTitle, { color: theme.textPrimary }]}>
+          Quick actions
+        </Text>
+        <Pressable
+          onPress={() =>
+            navigation.getParent()?.navigate('Library', {
+              screen: 'LibraryList',
+              params: { openPicker: true },
+            })
+          }
+          style={({ pressed }) => [
+            styles.actionPrimary,
+            { backgroundColor: theme.primary },
+            pressed && { opacity: 0.85 },
+          ]}
+        >
+          <Upload size={20} color={theme.white} />
+          <Text style={[styles.actionPrimaryText, { color: theme.white }]}>
+            Upload a document
+          </Text>
+        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -171,24 +197,31 @@ const styles = StyleSheet.create({
   hi: { fontSize: 22, fontWeight: '600' },
   sub: { fontSize: 13, marginTop: 2 },
   centerBox: { paddingVertical: 40, alignItems: 'center' },
-  errorText: { fontSize: 14, marginBottom: 8 },
-  retry: { fontSize: 13, fontWeight: '500' },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    marginBottom: 24,
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: '500',
+    marginBottom: 12,
+    marginTop: 4,
   },
-  statCard: {
-    width: '47%',
-    flexGrow: 1,
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 16 },
+  card: { width: '47%', flexGrow: 1, borderRadius: 16, padding: 16 },
+  cardTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+  },
+  cardValue: { fontSize: 26, fontWeight: '600', marginTop: 10 },
+  cardLabel: { fontSize: 12, marginTop: 2 },
+  chatRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     borderRadius: 16,
     padding: 16,
+    marginBottom: 24,
   },
-  statValue: { fontSize: 24, fontWeight: '600', marginTop: 8 },
-  statLabel: { fontSize: 12, marginTop: 2 },
-  sectionTitle: { fontSize: 15, fontWeight: '500', marginBottom: 12 },
-  actions: { gap: 8 },
+  chatLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  chatLabel: { fontSize: 14 },
   actionPrimary: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -197,12 +230,4 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   actionPrimaryText: { fontSize: 14, fontWeight: '500' },
-  actionSecondary: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    borderRadius: 14,
-    padding: 16,
-  },
-  actionSecondaryText: { fontSize: 14, fontWeight: '500' },
 });

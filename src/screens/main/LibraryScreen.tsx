@@ -13,11 +13,13 @@ import {
   useNavigation,
   useRoute,
 } from '@react-navigation/native';
-import { FileText, Plus } from 'lucide-react-native';
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { FileText, Plus, Trash2 } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import {
   getDocumentsService,
   uploadDocumentService,
+  deleteDocumentService,
 } from '../../services/document.services';
 import { Document } from '../../types/document.types';
 import { pick, types } from '@react-native-documents/picker';
@@ -89,6 +91,16 @@ export default function LibraryScreen() {
     }
   }, [route.params?.openPicker]);
 
+  const handleDelete = async (id: string) => {
+    const previous = documents;
+    setDocuments(prev => prev.filter(d => d._id !== id));
+    try {
+      await deleteDocumentService(id);
+    } catch {
+      setDocuments(previous);
+    }
+  };
+
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${Math.round(bytes / 1024)} KB`;
@@ -104,35 +116,45 @@ export default function LibraryScreen() {
     });
   };
 
-  const renderItem = ({ item }: { item: Document }) => (
+  const renderRightActions = (id: string) => (
     <Pressable
-      onPress={() => {
-        navigation.navigate('DocumentDetail', {
-          documentId: item._id,
-          title: item.title,
-        });
-      }}
-      style={({ pressed }) => [
-        styles.card,
-        { backgroundColor: theme.card },
-        pressed && { opacity: 0.7 },
-      ]}
+      onPress={() => handleDelete(id)}
+      style={[styles.deleteAction, { backgroundColor: theme.error }]}
     >
-      <View style={[styles.iconBox, { backgroundColor: theme.background }]}>
-        <FileText size={22} color={theme.primary} />
-      </View>
-      <View style={styles.cardContent}>
-        <Text
-          style={[styles.cardTitle, { color: theme.textPrimary }]}
-          numberOfLines={1}
-        >
-          {item.title}
-        </Text>
-        <Text style={[styles.cardMeta, { color: theme.textSecondary }]}>
-          {formatSize(item.fileSize)} · {formatDate(item.createdAt)}
-        </Text>
-      </View>
+      <Trash2 size={22} color={theme.white} />
     </Pressable>
+  );
+
+  const renderItem = ({ item }: { item: Document }) => (
+    <ReanimatedSwipeable
+      renderRightActions={() => renderRightActions(item._id)}
+      overshootRight={false}
+    >
+      <Pressable
+        onPress={() => {
+          navigation.navigate('DocumentDetail', {
+            documentId: item._id,
+            title: item.title,
+          });
+        }}
+        style={[styles.card, { backgroundColor: theme.card }]}
+      >
+        <View style={[styles.iconBox, { backgroundColor: theme.background }]}>
+          <FileText size={22} color={theme.primary} />
+        </View>
+        <View style={styles.cardContent}>
+          <Text
+            style={[styles.cardTitle, { color: theme.textPrimary }]}
+            numberOfLines={1}
+          >
+            {item.title}
+          </Text>
+          <Text style={[styles.cardMeta, { color: theme.textSecondary }]}>
+            {formatSize(item.fileSize)} · {formatDate(item.createdAt)}
+          </Text>
+        </View>
+      </Pressable>
+    </ReanimatedSwipeable>
   );
 
   if (loading) {
@@ -252,4 +274,12 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: 16, fontWeight: '500', marginTop: 12 },
   emptyText: { fontSize: 13, marginTop: 4, textAlign: 'center' },
   retry: { fontSize: 13, fontWeight: '500', marginTop: 8 },
+  deleteAction: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 72,
+    borderRadius: 14,
+    marginBottom: 10,
+    marginLeft: 8,
+  },
 });

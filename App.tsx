@@ -8,6 +8,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import MainNavigator from './src/navigation/MainNavigator';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import NetworkBanner from './src/components/NetworkBanner';
 
 function RootNavigator() {
   const { user, isLoading } = useAuth();
@@ -39,6 +40,7 @@ export default function App() {
             <NavigationContainer>
               <RootNavigator />
             </NavigationContainer>
+            <NetworkBanner />
           </AuthProvider>
         </ThemeProvider>
       </SafeAreaProvider>

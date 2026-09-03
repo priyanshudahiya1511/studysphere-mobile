@@ -10,6 +10,14 @@
       <string>com.googleusercontent.apps.868958329884-dmjpjgguq0u8c39hudmt799m0nj5tf46</string>
     </array>
   </dict>
+  <dict>
+       <key>CFBundleURLName</key>
+	   <string>com.priyanshu.studysphere</string>
+	   <key>CFBundleURLSchemes</key>
+			<array>
+				<string>studysphere</string>
+			</array>
+		</dict>
 </array>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from './src/context/ThemeContext';
 import { NavigationContainer } from '@react-navigation/native';
@@ -10,9 +10,26 @@ import MainNavigator from './src/navigation/MainNavigator';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import NetworkBanner from './src/components/NetworkBanner';
 import { linking } from './src/navigation/linking';
+import {
+  getFcmToken,
+  requestNotificationPermission,
+} from './src/services/notifications';
 
 function RootNavigator() {
   const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      const setup = async () => {
+        const granted = await requestNotificationPermission();
+        if (granted) {
+          const token = await getFcmToken();
+          console.log('FCM TOKEN', token);
+        }
+      };
+      setup();
+    }
+  }, [user]);
 
   if (isLoading) {
     return (

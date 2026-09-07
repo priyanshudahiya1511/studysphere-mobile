@@ -14,10 +14,16 @@ import {
   getFcmToken,
   requestNotificationPermission,
   saveFcmTokenToBackend,
+  setupNotificationsHandlers,
 } from './src/services/notifications';
+import { navigationRef } from './src/navigation/navigationRef';
 
 function RootNavigator() {
   const { user, isLoading } = useAuth();
+
+  useEffect(() => {
+    setupNotificationsHandlers();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -58,7 +64,7 @@ export default function App() {
       <SafeAreaProvider>
         <ThemeProvider>
           <AuthProvider>
-            <NavigationContainer linking={linking}>
+            <NavigationContainer ref={navigationRef} linking={linking}>
               <RootNavigator />
             </NavigationContainer>
             <NetworkBanner />

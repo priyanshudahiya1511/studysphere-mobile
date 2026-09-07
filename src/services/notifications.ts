@@ -1,8 +1,14 @@
 import { getApp } from '@react-native-firebase/app';
-import { getMessaging, getToken } from '@react-native-firebase/messaging';
+import {
+  getInitialNotification,
+  getMessaging,
+  getToken,
+  onNotificationOpenedApp,
+} from '@react-native-firebase/messaging';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { requestNotifications } from 'react-native-permissions';
 import api from './api';
+import { navigate } from '../navigation/navigationRef';
 
 export const requestNotificationPermission = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -37,5 +43,31 @@ export const saveFcmTokenToBackend = async (token: string) => {
     await api.post('/api/v1/auth/save-fcm-token', { fcmToken: token });
   } catch (err) {
     console.log('Failed to save FCM token to backend:', err);
+  }
+};
+
+export const setupNotificationsHandlers = () => {
+  const messaging = getMessaging(getApp());
+
+  onNotificationOpenedApp(messaging, remoteMessage => {
+    handleNotificationTap(remoteMessage?.data);
+  });
+
+  getInitialNotification(messaging).then(remoteMessage => {
+    if (remoteMessage) {
+      handleNotificationTap(remoteMessage?.data);
+    }
+  });
+};
+
+const handleNotificationTap = (data: any) => {
+  if (!data) return;
+  if (data.screen === 'planner') {
+    navigate('Planner');
+  } else if (data.screen === 'document' && data.documentId) {
+    navigate('Library', {
+      screen: 'DocumentDetail',
+      params: { documentId: data.documentId, title: '' },
+    });
   }
 };

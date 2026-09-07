@@ -2,6 +2,7 @@ import { getApp } from '@react-native-firebase/app';
 import { getMessaging, getToken } from '@react-native-firebase/messaging';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { requestNotifications } from 'react-native-permissions';
+import api from './api';
 
 export const requestNotificationPermission = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -28,5 +29,13 @@ export const getFcmToken = async (): Promise<string | null> => {
   } catch (err) {
     console.log('Error getting FCM token:', err);
     return null;
+  }
+};
+
+export const saveFcmTokenToBackend = async (token: string) => {
+  try {
+    await api.post('/api/v1/auth/save-fcm-token', { fcmToken: token });
+  } catch (err) {
+    console.log('Failed to save FCM token to backend:', err);
   }
 };

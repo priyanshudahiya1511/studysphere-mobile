@@ -13,6 +13,7 @@ import { linking } from './src/navigation/linking';
 import {
   getFcmToken,
   requestNotificationPermission,
+  saveFcmTokenToBackend,
 } from './src/services/notifications';
 
 function RootNavigator() {
@@ -24,7 +25,9 @@ function RootNavigator() {
         const granted = await requestNotificationPermission();
         if (granted) {
           const token = await getFcmToken();
-          console.log('FCM TOKEN', token);
+          if (token) {
+            await saveFcmTokenToBackend(token);
+          }
         }
       };
       setup();

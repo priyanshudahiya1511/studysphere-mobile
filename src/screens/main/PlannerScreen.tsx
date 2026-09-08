@@ -412,9 +412,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: 72,
-    borderRadius: 12,
+    height: 50,
     marginBottom: 10,
-    marginLeft: 8,
+    marginTop: 10,
+    marginRight: 2,
+    borderRadius: 12,
   },
   calendarButton: {
     width: 44,

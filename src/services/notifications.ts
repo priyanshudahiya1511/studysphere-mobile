@@ -3,12 +3,14 @@ import {
   getInitialNotification,
   getMessaging,
   getToken,
+  onMessage,
   onNotificationOpenedApp,
 } from '@react-native-firebase/messaging';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { requestNotifications } from 'react-native-permissions';
 import api from './api';
 import { navigate } from '../navigation/navigationRef';
+import notifee, { AndroidImportance } from '@notifee/react-native';
 
 export const requestNotificationPermission = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -70,4 +72,40 @@ const handleNotificationTap = (data: any) => {
       params: { documentId: data.documentId, title: '' },
     });
   }
+};
+
+export const foregroundCreateNotificationChannel = async () => {
+  await notifee.createChannel({
+    id: 'default',
+    name: 'Default Channel',
+    importance: AndroidImportance.HIGH,
+  });
+};
+
+export const foregroundDisplayNotification = async (
+  title: string,
+  body: string,
+  data: any = {},
+) => {
+  await notifee.displayNotification({
+    title,
+    body,
+    data,
+    android: {
+      channelId: 'default',
+      importance: AndroidImportance.HIGH,
+      pressAction: { id: 'default' },
+    },
+  });
+};
+
+export const setupForegroundHandler = () => {
+  const messaging = getMessaging(getApp());
+  return onMessage(messaging, async remoteMessage => {
+    await foregroundDisplayNotification(
+      remoteMessage.notification?.title ?? 'Notification',
+      remoteMessage.notification?.body ?? '',
+      remoteMessage.data,
+    );
+  });
 };

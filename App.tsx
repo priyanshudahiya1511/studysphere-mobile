@@ -11,9 +11,11 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import NetworkBanner from './src/components/NetworkBanner';
 import { linking } from './src/navigation/linking';
 import {
+  foregroundCreateNotificationChannel,
   getFcmToken,
   requestNotificationPermission,
   saveFcmTokenToBackend,
+  setupForegroundHandler,
   setupNotificationsHandlers,
 } from './src/services/notifications';
 import { navigationRef } from './src/navigation/navigationRef';
@@ -23,6 +25,12 @@ function RootNavigator() {
 
   useEffect(() => {
     setupNotificationsHandlers();
+  }, []);
+
+  useEffect(() => {
+    foregroundCreateNotificationChannel();
+    const unsubscribe = setupForegroundHandler();
+    return unsubscribe;
   }, []);
 
   useEffect(() => {

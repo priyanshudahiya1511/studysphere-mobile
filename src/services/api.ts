@@ -1,9 +1,14 @@
 import axios from 'axios';
-import { Platform } from 'react-native';
 import { secureStorage } from '../lib/secureStorage';
+import { Platform } from 'react-native';
 
-const BASE_URL =
-  Platform.OS === 'android' ? 'http://10.0.2.2:8000' : 'http://localhost:8000';
+const USE_PRODUCTION = true;
+
+const BASE_URL = USE_PRODUCTION
+  ? 'https://studysphere-backend-29ra.onrender.com'
+  : Platform.OS === 'android'
+  ? 'http://10.0.2.2:8000'
+  : 'http://localhost:8000';
 
 const api = axios.create({
   baseURL: BASE_URL,

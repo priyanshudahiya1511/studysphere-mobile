@@ -211,7 +211,8 @@ export default function PlannerScreen() {
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior="padding"
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}
       >
         <View style={styles.header}>
           <View style={styles.headerRow}>
@@ -389,7 +390,7 @@ const styles = StyleSheet.create({
   taskDate: { fontSize: 12, marginTop: 2, fontWeight: '500' },
   addBar: {
     flexDirection: 'row',
-    padding: 12,
+    paddingTop: 8,
     gap: 8,
     borderTopWidth: 1,
     alignItems: 'center',

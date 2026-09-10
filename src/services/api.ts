@@ -2,7 +2,7 @@ import axios from 'axios';
 import { secureStorage } from '../lib/secureStorage';
 import { Platform } from 'react-native';
 
-const USE_PRODUCTION = true;
+const USE_PRODUCTION = false;
 
 const BASE_URL = USE_PRODUCTION
   ? 'https://studysphere-backend-29ra.onrender.com'

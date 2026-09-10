@@ -93,8 +93,12 @@ export const foregroundDisplayNotification = async (
     data,
     android: {
       channelId: 'default',
+      smallIcon: 'ic_notification',
       importance: AndroidImportance.HIGH,
       pressAction: { id: 'default' },
+    },
+    ios: {
+      sound: 'default',
     },
   });
 };

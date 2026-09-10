@@ -377,6 +377,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginBottom: 10,
     gap: 12,
+    minHeight: 64,
   },
   checkCircle: {
     width: 22,

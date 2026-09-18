@@ -11,9 +11,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useTheme } from '../../context/ThemeContext';
-import { generateFlashcardsService } from '../../services/flashcard.services';
+import {
+  generateFlashcardsService,
+  deleteFlashcardSetService,
+} from '../../services/flashcard.services';
 import { FlashcardSet } from '../../types/flashcard.types';
 import { LibraryStackParamList } from '../../navigation/LibraryStack';
+import { Alert } from 'react-native';
+import { Trash2 } from 'lucide-react-native';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'Flashcards'>;
 
@@ -25,6 +30,7 @@ export default function FlashcardScreen({ navigation, route }: Props) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [index, setIndex] = useState(0);
+  const [deleting, setDeleting] = useState(false);
   const [flipped, setFlipped] = useState(false);
 
   const flipAnim = useRef(new Animated.Value(0)).current;
@@ -84,6 +90,30 @@ export default function FlashcardScreen({ navigation, route }: Props) {
     outputRange: ['180deg', '360deg'],
   });
 
+  const handleDelete = () => {
+    Alert.alert(
+      'Delete flashcard set?',
+      'This will permanently remove this set.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await deleteFlashcardSetService(set?._id || '');
+              navigation.goBack();
+            } catch (err: any) {
+              setError(err.response?.data?.message || 'Could not delete set');
+              setDeleting(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
   if (loading) {
     return (
       <SafeAreaView
@@ -129,7 +159,13 @@ export default function FlashcardScreen({ navigation, route }: Props) {
         <Text style={[styles.headerTitle, { color: theme.textPrimary }]}>
           Flashcards
         </Text>
-        <View style={{ width: 24 }} />
+        {set ? (
+          <Pressable onPress={handleDelete} hitSlop={8} disabled={deleting}>
+            <Trash2 size={20} color={theme.error} />
+          </Pressable>
+        ) : (
+          <View style={{ width: 24 }} />
+        )}
       </View>
 
       <View style={styles.counterRow}>

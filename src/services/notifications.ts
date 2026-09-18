@@ -7,7 +7,6 @@ import {
   onNotificationOpenedApp,
 } from '@react-native-firebase/messaging';
 import { PermissionsAndroid, Platform } from 'react-native';
-import { requestNotifications } from 'react-native-permissions';
 import api from './api';
 import { navigate } from '../navigation/navigationRef';
 import notifee, {

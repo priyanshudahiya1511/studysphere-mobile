@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, Dimensions, Pressable } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Dimensions,
+  Pressable,
+  Platform,
+} from 'react-native';
 import React from 'react';
 import { LibraryStackParamList } from '../../navigation/LibraryStack';
 import { useTheme } from '../../context/ThemeContext';
@@ -12,6 +19,11 @@ type Props = NativeStackScreenProps<LibraryStackParamList, 'PdfViewer'>;
 const PdfViewerScreen = ({ navigation, route }: Props) => {
   const { theme } = useTheme();
   const { fileUrl, title } = route.params;
+  const pdfUrl =
+    Platform.OS === 'android'
+      ? fileUrl.replace('/upload/', '/upload/fl_attachment/')
+      : fileUrl;
+  console.log('PDF URL:', fileUrl);
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -28,12 +40,12 @@ const PdfViewerScreen = ({ navigation, route }: Props) => {
       </View>
 
       <Pdf
-        source={{ uri: fileUrl, cache: true }}
+        source={{
+          uri: pdfUrl,
+        }}
         style={styles.pdf}
         trustAllCerts={false}
-        onError={error => {
-          console.log('PDF error:', error);
-        }}
+        onError={error => console.log('PDF error:', error)}
       />
     </SafeAreaView>
   );

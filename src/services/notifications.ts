@@ -10,7 +10,10 @@ import { PermissionsAndroid, Platform } from 'react-native';
 import { requestNotifications } from 'react-native-permissions';
 import api from './api';
 import { navigate } from '../navigation/navigationRef';
-import notifee, { AndroidImportance } from '@notifee/react-native';
+import notifee, {
+  AndroidImportance,
+  AuthorizationStatus,
+} from '@notifee/react-native';
 
 export const requestNotificationPermission = async (): Promise<boolean> => {
   if (Platform.OS === 'android') {
@@ -24,9 +27,8 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
     return true;
   }
 
-  const { status } = await requestNotifications(['alert', 'sound', 'badge']);
-
-  return status === 'granted';
+  const settings = await notifee.requestPermission();
+  return settings.authorizationStatus >= AuthorizationStatus.AUTHORIZED;
 };
 
 export const getFcmToken = async (): Promise<string | null> => {

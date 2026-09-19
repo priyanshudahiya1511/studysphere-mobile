@@ -65,7 +65,7 @@ export default function RegisterScreen({ navigation }: Props) {
       await googleLogin(idToken);
     } catch (err: any) {
       console.log('Google sign-in error:', err);
-      setError('Google sign-in failed. Please try again.');
+      setError(`Google error: ${err?.code ?? ''} ${err?.message ?? err}`);
     } finally {
       setLoading(false);
     }

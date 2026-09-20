@@ -4,26 +4,29 @@ import {
   StyleSheet,
   Dimensions,
   Pressable,
+  ActivityIndicator,
   Platform,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { LibraryStackParamList } from '../../navigation/LibraryStack';
 import { useTheme } from '../../context/ThemeContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ArrowLeft } from 'lucide-react-native';
 import Pdf from 'react-native-pdf';
+import { WebView } from 'react-native-webview';
 
 type Props = NativeStackScreenProps<LibraryStackParamList, 'PdfViewer'>;
 
 const PdfViewerScreen = ({ navigation, route }: Props) => {
   const { theme } = useTheme();
   const { fileUrl, title } = route.params;
-  const pdfUrl =
-    Platform.OS === 'android'
-      ? fileUrl.replace('/upload/', '/upload/fl_attachment/')
-      : fileUrl;
-  console.log('PDF URL:', fileUrl);
+  const [loading, setLoading] = useState(true);
+
+  const googleViewerUrl = `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(
+    fileUrl,
+  )}`;
+
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
       <View style={styles.header}>
@@ -39,14 +42,36 @@ const PdfViewerScreen = ({ navigation, route }: Props) => {
         <View style={{ width: 24 }} />
       </View>
 
-      <Pdf
-        source={{
-          uri: pdfUrl,
-        }}
-        style={styles.pdf}
-        trustAllCerts={false}
-        onError={error => console.log('PDF error:', error)}
-      />
+      {Platform.OS === 'ios' ? (
+        <Pdf
+          source={{ uri: fileUrl, cache: true }}
+          style={styles.pdf}
+          trustAllCerts={false}
+          onError={err => console.log('PDF error:', err)}
+        />
+      ) : (
+        <View style={styles.pdf}>
+          <WebView
+            source={{ uri: googleViewerUrl }}
+            style={{ flex: 1 }}
+            onLoadEnd={() => setLoading(false)}
+            onError={syntheticEvent => {
+              console.log('WebView error:', syntheticEvent.nativeEvent);
+            }}
+            startInLoadingState
+          />
+          {loading && (
+            <View style={styles.loadingOverlay}>
+              <ActivityIndicator color={theme.primary} size="large" />
+              <Text
+                style={[styles.loadingText, { color: theme.textSecondary }]}
+              >
+                Loading document...
+              </Text>
+            </View>
+          )}
+        </View>
+      )}
     </SafeAreaView>
   );
 };
@@ -74,4 +99,15 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     backgroundColor: '#fff',
   },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+  },
+  loadingText: { fontSize: 13, marginTop: 12 },
 });

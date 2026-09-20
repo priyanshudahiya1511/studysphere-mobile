@@ -208,7 +208,10 @@ export default function PlannerScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
+    <SafeAreaView
+      style={[styles.safe, { backgroundColor: theme.background }]}
+      edges={['top']}
+    >
       <KeyboardAvoidingView
         style={styles.flex}
         behavior="padding"
@@ -409,6 +412,7 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 10,
   },
   deleteAction: {
     justifyContent: 'center',
@@ -426,11 +430,13 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     alignItems: 'center',
     justifyContent: 'center',
+    marginBottom: 10,
   },
   inputWrapper: {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'center',
+    marginBottom: 10,
   },
   selectedDate: {
     fontSize: 11,

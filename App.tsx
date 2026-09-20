@@ -61,7 +61,7 @@ function RootNavigator() {
 
 GoogleSignin.configure({
   webClientId:
-    '68958329884-o8utk1eopsdt5um15oom7f716hkn5e62.apps.googleusercontent.com',
+    '868958329884-o8utk1eopsdt5um15oom7f716hkn5e62.apps.googleusercontent.com',
   iosClientId:
     '868958329884-dmjpjgguq0u8c39hudmt799m0nj5tf46.apps.googleusercontent.com',
 });

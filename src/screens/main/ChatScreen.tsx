@@ -124,7 +124,10 @@ export default function ChatScreen({ navigation, route }: Props) {
   };
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
+    <SafeAreaView
+      style={[styles.safe, { backgroundColor: theme.background }]}
+      edges={['top']}
+    >
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
           <ArrowLeft size={24} color={theme.textPrimary} />
@@ -154,7 +157,7 @@ export default function ChatScreen({ navigation, route }: Props) {
         <KeyboardAvoidingView
           style={styles.flex}
           behavior="padding"
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 1 : 0}
         >
           <FlatList
             ref={listRef}

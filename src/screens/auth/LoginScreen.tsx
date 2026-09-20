@@ -52,7 +52,7 @@ export default function LoginScreen({ navigation }: Props) {
       await googleLogin(idToken);
     } catch (err: any) {
       console.log('Google sign-in error:', err);
-      setError(`Google error: ${err?.code ?? ''} ${err?.message ?? err}`);
+      setError('Google sign-in failed. Please try again.');
     } finally {
       setLoading(false);
     }

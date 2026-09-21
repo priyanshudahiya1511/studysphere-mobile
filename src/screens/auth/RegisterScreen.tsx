@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Eye, EyeOff, Brain } from 'lucide-react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -23,6 +30,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleRegister = async () => {
     if (!name || !email || !password || !confirmPassword) {
@@ -53,7 +61,7 @@ export default function RegisterScreen({ navigation }: Props) {
 
   const handleGoogleLogin = async () => {
     setError('');
-    setLoading(true);
+    setGoogleLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
@@ -66,9 +74,12 @@ export default function RegisterScreen({ navigation }: Props) {
     } catch (err: any) {
       console.log('Google sign-in error:', err);
       setError('Google sign-in failed. Please try again.');
-      setLoading(false);
+    } finally {
+      setGoogleLoading(false);
     }
   };
+
+  const busy = loading || googleLoading;
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
@@ -87,17 +98,25 @@ export default function RegisterScreen({ navigation }: Props) {
 
         <Pressable
           onPress={handleGoogleLogin}
-          disabled={loading}
+          disabled={busy}
           style={({ pressed }) => [
             styles.googleButton,
             { borderColor: theme.border, backgroundColor: theme.card },
-            pressed && { opacity: 0.85 },
+            (pressed || busy) && { opacity: 0.7 },
           ]}
         >
-          <GoogleIcon size={18} />
-          <Text style={[styles.googleButtonText, { color: theme.textPrimary }]}>
-            Continue with Google
-          </Text>
+          {googleLoading ? (
+            <ActivityIndicator size="small" color={theme.primary} />
+          ) : (
+            <>
+              <GoogleIcon size={18} />
+              <Text
+                style={[styles.googleButtonText, { color: theme.textPrimary }]}
+              >
+                Continue with Google
+              </Text>
+            </>
+          )}
         </Pressable>
 
         <View style={styles.dividerRow}>
@@ -200,17 +219,21 @@ export default function RegisterScreen({ navigation }: Props) {
 
         <Pressable
           onPress={handleRegister}
-          disabled={loading}
+          disabled={busy}
           style={({ pressed }) => [
             styles.button,
             { backgroundColor: theme.primary },
             pressed && styles.buttonPressed,
-            loading && styles.buttonDisabled,
+            busy && styles.buttonDisabled,
           ]}
         >
-          <Text style={[styles.buttonText, { color: theme.white }]}>
-            {loading ? 'Please wait...' : 'Sign up'}
-          </Text>
+          {loading ? (
+            <ActivityIndicator size="small" color={theme.white} />
+          ) : (
+            <Text style={[styles.buttonText, { color: theme.white }]}>
+              Sign up
+            </Text>
+          )}
         </Pressable>
 
         <Text style={[styles.footer, { color: theme.textSecondary }]}>

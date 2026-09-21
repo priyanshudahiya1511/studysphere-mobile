@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Eye, EyeOff, Brain } from 'lucide-react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -19,6 +26,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -40,7 +48,7 @@ export default function LoginScreen({ navigation }: Props) {
 
   const handleGoogleLogin = async () => {
     setError('');
-    setLoading(true);
+    setGoogleLoading(true);
     try {
       await GoogleSignin.hasPlayServices();
       const response = await GoogleSignin.signIn();
@@ -54,13 +62,15 @@ export default function LoginScreen({ navigation }: Props) {
       console.log('Google sign-in error:', err);
       setError('Google sign-in failed. Please try again.');
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
   const toggleTheme = () => {
     setPreference(isDark ? 'light' : 'dark');
   };
+
+  const busy = loading || googleLoading;
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: theme.background }]}>
@@ -79,17 +89,25 @@ export default function LoginScreen({ navigation }: Props) {
 
         <Pressable
           onPress={handleGoogleLogin}
-          disabled={loading}
+          disabled={busy}
           style={({ pressed }) => [
             styles.googleButton,
             { borderColor: theme.border, backgroundColor: theme.card },
-            pressed && { opacity: 0.85 },
+            (pressed || busy) && { opacity: 0.7 },
           ]}
         >
-          <GoogleIcon size={18} />
-          <Text style={[styles.googleButtonText, { color: theme.textPrimary }]}>
-            Continue with Google
-          </Text>
+          {googleLoading ? (
+            <ActivityIndicator size="small" color={theme.primary} />
+          ) : (
+            <>
+              <GoogleIcon size={18} />
+              <Text
+                style={[styles.googleButtonText, { color: theme.textPrimary }]}
+              >
+                Continue with Google
+              </Text>
+            </>
+          )}
         </Pressable>
 
         <View style={styles.dividerRow}>
@@ -115,7 +133,6 @@ export default function LoginScreen({ navigation }: Props) {
           autoCapitalize="none"
           keyboardType="email-address"
         />
-
         <Text style={[styles.label, { color: theme.textSecondary }]}>
           Password
         </Text>
@@ -158,19 +175,22 @@ export default function LoginScreen({ navigation }: Props) {
 
         <Pressable
           onPress={handleLogin}
-          disabled={loading}
+          disabled={busy}
           style={({ pressed }) => [
             styles.button,
             { backgroundColor: theme.primary },
             pressed && styles.buttonPressed,
-            loading && styles.buttonDisabled,
+            busy && styles.buttonDisabled,
           ]}
         >
-          <Text style={[styles.buttonText, { color: theme.white }]}>
-            {loading ? 'Please wait...' : 'Log in'}
-          </Text>
+          {loading ? (
+            <ActivityIndicator size="small" color={theme.white} />
+          ) : (
+            <Text style={[styles.buttonText, { color: theme.white }]}>
+              Log in
+            </Text>
+          )}
         </Pressable>
-
         <Text style={[styles.footer, { color: theme.textSecondary }]}>
           New here?{' '}
           <Text

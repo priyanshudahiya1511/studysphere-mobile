@@ -8,6 +8,7 @@ import {
   ScrollView,
   Modal,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -18,9 +19,11 @@ import {
   LogOut,
   Brain,
   X,
+  Trash2,
 } from 'lucide-react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useAuth } from '../../context/AuthContext';
+import { deleteAccountService } from '../../services/auth.services';
 
 export default function ProfileScreen() {
   const { theme, isDark, setPreference } = useTheme();
@@ -28,17 +31,47 @@ export default function ProfileScreen() {
 
   const [aboutVisible, setAboutVisible] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   const initial = user?.name?.charAt(0)?.toUpperCase() ?? '?';
 
+  const busy = loggingOut || deleting;
+
   const handleLogout = async () => {
-    if (loggingOut) return;
+    if (busy) return;
     setLoggingOut(true);
     try {
       await logout();
     } catch {
       setLoggingOut(false);
     }
+  };
+
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete account?',
+      'This will permanently delete your account and all your data. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setDeleting(true);
+              await deleteAccountService();
+              await logout();
+            } catch {
+              setDeleting(false);
+              Alert.alert(
+                'Error',
+                'Could not delete account. Please try again.',
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   return (
@@ -115,11 +148,11 @@ export default function ProfileScreen() {
 
         <Pressable
           onPress={handleLogout}
-          disabled={loggingOut}
+          disabled={busy}
           style={({ pressed }) => [
             styles.logoutButton,
             { borderColor: theme.error },
-            (pressed || loggingOut) && { opacity: 0.7 },
+            (pressed || busy) && { opacity: 0.7 },
           ]}
         >
           {loggingOut ? (
@@ -129,6 +162,26 @@ export default function ProfileScreen() {
               <LogOut size={18} color={theme.error} />
               <Text style={[styles.logoutText, { color: theme.error }]}>
                 Log out
+              </Text>
+            </>
+          )}
+        </Pressable>
+
+        <Pressable
+          onPress={handleDeleteAccount}
+          disabled={busy}
+          style={({ pressed }) => [
+            styles.deleteAccountButton,
+            (pressed || busy) && { opacity: 0.7 },
+          ]}
+        >
+          {deleting ? (
+            <ActivityIndicator size="small" color={theme.error} />
+          ) : (
+            <>
+              <Trash2 size={16} color={theme.error} />
+              <Text style={[styles.deleteAccountText, { color: theme.error }]}>
+                Delete account
               </Text>
             </>
           )}
@@ -226,6 +279,15 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
   logoutText: { fontSize: 14, fontWeight: '500' },
+  deleteAccountButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    paddingVertical: 12,
+    marginTop: 12,
+  },
+  deleteAccountText: { fontSize: 13, fontWeight: '500' },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',

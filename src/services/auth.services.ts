@@ -66,3 +66,8 @@ export const googleAuthService = async (googleToken: string) => {
   const response = await api.post('/api/v1/auth/google', { googleToken });
   return response.data;
 };
+
+export const deleteAccountService = async () => {
+  const response = await api.delete('/api/v1/auth/delete-account');
+  return response.data;
+};
